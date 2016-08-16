@@ -6,9 +6,17 @@ const Stats = require('fast-stats').Stats;
 function statisticsReport(stats) {
     return {
         mean: stats.amean(),
-        quartile1: stats.percentile(25),
-        quartile2: stats.percentile(50),
-        quartile3: stats.percentile(75),
+        percentile: {
+            "10": stats.percentile(10),
+            "20": stats.percentile(20),
+            "30": stats.percentile(30),
+            "40": stats.percentile(40),
+            "50": stats.percentile(50),
+            "60": stats.percentile(60),
+            "70": stats.percentile(70),
+            "80": stats.percentile(80),
+            "90": stats.percentile(90),
+        }
     };
 }
 

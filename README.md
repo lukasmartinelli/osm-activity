@@ -21,3 +21,5 @@ gunzip planet.mbtiles.gz
 ```bash
 node index -m planet.mbtiles -o changes.geojson -s stats.json
 ```
+
+Scanning through the 1 million tiles on a 40-core cluster takes 10 minutes to do the entire analysis.
