@@ -1,6 +1,7 @@
 'use strict';
 
 var tileReduce = require('tile-reduce');
+var turf = require('turf');
 var path = require('path');
 
 var changelogs = [];
@@ -16,9 +17,10 @@ tileReduce({
   raw: true,
 })
 .on('reduce', function(changelog) {
-  console.log(JSON.stringify(changelog) + '\n')
+  console.log(changelog.properties.total);
   changelogs.push(changelog);
 })
 .on('end', function() {
+  var geoJSON = turf.featureCollection(changelogs);
   console.log('Changelogs total: %d', changelogs.length);
 });
