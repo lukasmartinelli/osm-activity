@@ -30,4 +30,4 @@ Invoke the `index.js` file with the planet file and output parameters. Collectin
 node index.js -m planet.mbtiles -o changes.geojson -s stats.json
 ```
 
-Scanning through the 1 million tiles on a 40-core cluster takes 10 minutes to do the entire analysis.
+Scanning through the 2.5 million tiles on 40 cores takes 20 minutes to do the entire analysis.

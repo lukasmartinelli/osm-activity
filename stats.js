@@ -16,24 +16,31 @@ function statisticsReport(stats) {
             "70": stats.percentile(70),
             "80": stats.percentile(80),
             "90": stats.percentile(90),
+            "95": stats.percentile(95),
+            "99": stats.percentile(99),
         }
     };
 }
 
 class ChangelogStats {
     constructor() {
+        this.lowThreshold = 5;
         this.globalStats = new Stats();
         this.yearStats = _.fromPairs(_.range(2006, 2017).map(year => [year, new Stats()]));
     }
 
     trackTile(changelog) {
         const props = changelog.properties;
-        this.globalStats.push(props.total);
+        if (props.total > this.lowThreshold) {
+            this.globalStats.push(props.total);
+        }
 
         _(props.years).toPairs().forEach(kvp => {
             var year = kvp[0];
             var yearInfo = kvp[1];
-            this.yearStats[year].push(yearInfo.year);
+            if (yearInfo.year > this.lowThreshold) {
+                this.yearStats[year].push(yearInfo.year);
+            }
         });
     }
 
