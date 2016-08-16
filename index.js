@@ -16,6 +16,7 @@ tileReduce({
   raw: true,
 })
 .on('reduce', function(changelog) {
+  console.log(JSON.stringify(changelog) + '\n')
   changelogs.push(changelog);
 })
 .on('end', function() {

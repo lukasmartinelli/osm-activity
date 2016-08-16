@@ -1,0 +1,23 @@
+{
+  "name": "osm-tileupdates",
+  "version": "1.0.0",
+  "description": "Track changes in OSM across tiles",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lukasmartinelli/osm-tileupdates.git"
+  },
+  "keywords": [
+    "osm",
+    "mapbox"
+  ],
+  "author": "Lukas Martinelli",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lukasmartinelli/osm-tileupdates/issues"
+  },
+  "homepage": "https://github.com/lukasmartinelli/osm-tileupdates#readme"
+}
