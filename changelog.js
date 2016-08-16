@@ -18,10 +18,9 @@ function quarters(months) {
 class TileDecadeChangelog {
     constructor(tile) {
         this.tile = tile;
-        this.years = {};
-        _.range(2000, 2017).forEach(year => {
-            this.years[year] = _.range(0, 12).map(_ => 0);
-        });
+        this.years = _.fromPairs(_.range(2006, 2017).map(year => {
+            return [year, _.range(0, 12).map(_ => 0)];
+        }));
     }
 
     track(ft) {

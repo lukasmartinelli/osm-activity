@@ -4,23 +4,25 @@ const tileReduce = require('tile-reduce');
 const path = require('path');
 const fs = require('fs');
 const geoJSONStream = require('geojson-stream');
-let program = require('commander');
+const program = require('commander');
+const ChangelogStats = require('./stats');
 
 program
     .option('-o, --out-file <f>', 'GeoJSON target file')
     .option('-m, --mbtiles-file <f>', 'MBTiles source file')
+    .option('-s, --stats-file <f>', 'Store gathered statistics')
     .parse(process.argv);
 
 let changedFeatureCount = 0;
 if(program.mbtilesFile && program.outFile) {
-    let outputStream = fs.createWriteStream(program.outFile);
-    let featureStream = geoJSONStream.stringify();
+    const outputStream = fs.createWriteStream(program.outFile);
+    const featureStream = geoJSONStream.stringify();
     featureStream.pipe(outputStream);
 
+    const stats = new ChangelogStats();
     tileReduce({
-      bbox: [5.86, 45.75, 10.61, 48.23],
       zoom: 12,
-      map: path.join(__dirname, '/count.js'),
+      map: path.join(__dirname, '/map.js'),
       sources: [{
         name: 'osm',
         mbtiles: path.normalize(program.mbtilesFile),
@@ -29,11 +31,16 @@ if(program.mbtilesFile && program.outFile) {
     })
     .on('reduce', changelog => {
       changedFeatureCount += changelog.properties.total;
+      stats.trackTile(changelog);
       featureStream.write(changelog);
     })
     .on('end', () => {
       featureStream.end();
-      console.log('Changed features: %d', changedFeatureCount);
+      console.log('Total changed features: %d', changedFeatureCount);
+      if(program.statsFile) {
+          const report = JSON.stringify(stats.report(), null, 4);
+          fs.writeFileSync(program.statsFile, report);
+      }
     });
 } else {
     program.help();
