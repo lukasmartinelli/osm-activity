@@ -29,8 +29,8 @@ class TileDecadeChangelog {
     }
 
     toGeoJSON() {
-        let ft = tilebelt.tileToGeoJSON(this.tile);
-        ft.properties = {
+        let geometry = tilebelt.tileToGeoJSON(this.tile);
+        let properties = {
             years: _(this.years).toPairs().map(kvp => {
                 const year = kvp[0];
                 const months = kvp[1];
@@ -46,11 +46,11 @@ class TileDecadeChangelog {
                 z: this.tile[2],
             },
         };
-        ft.properties.total = _(ft.properties.years)
-            .values(ft.properties.years)
+        properties.total = _(properties.years)
+            .values()
             .map(y => y.year)
             .sum();
-        return ft;
+        return turf.feature(geometry, properties);
     }
 }
 
