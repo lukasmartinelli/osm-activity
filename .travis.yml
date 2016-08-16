@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - "6"
+  - "6.1"
+  - "5.11"
+  - "5.10"
+before_install:
+  - wget https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.country/liechtenstein.mbtiles.gz
+  - gunzip liechtenstein.mbtiles.gz
+scripts:
+  - node index.js -m liechtenstein.mbtiles -o liechtenstein.geojson -s liechtenstein.stats.json
