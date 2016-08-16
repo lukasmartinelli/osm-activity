@@ -3,23 +3,31 @@
 A [Tile Reduce](https://github.com/mapbox/tile-reduce) processor to count
 the changes within a tile over the years, quarters and months.
 
-## Installation
+[**:globe_with_meridians: Check the web map to see OSM update statistics for your region**](http://naturalearthtiles.org)
+
+## Download
+
+You can download the resulting GeoJSON file from the [latest GitHub release](https://github.com/lukasmartinelli/osm-tileupdates/releases/latest). Please ping me if you require other data formats.
+
+## Run yourself
+
+First install the required dependencies. You need to new Node version (`> 5`).
 
 ```
 npm install
 ```
 
-## Downloading OSM QA tiles
+Now download the [Mapbox QA Tiles](https://www.mapbox.com/blog/osm-qa-tiles/).
 
 ```bash
 curl -o planet.mbtiles.gz https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.planet.mbtiles.gz
 gunzip planet.mbtiles.gz
 ```
 
-## Run
+Invoke the `index.js` file with the planet file and output parameters. Collecting statistics is optional but helps interpreting the data.
 
 ```bash
-node index -m planet.mbtiles -o changes.geojson -s stats.json
+node index.js -m planet.mbtiles -o changes.geojson -s stats.json
 ```
 
 Scanning through the 1 million tiles on a 40-core cluster takes 10 minutes to do the entire analysis.
