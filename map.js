@@ -17,7 +17,7 @@ function stripHistory(ft) {
 
 // Turn BBOX into point (for overview)
 function generalizeAsPoint(ft) {
-    return turf.centroid(fc);
+    return turf.centroid(ft);
 }
 
 module.exports = function(tileLayers, tile, write, done) {
@@ -25,12 +25,13 @@ module.exports = function(tileLayers, tile, write, done) {
   tileLayers.osm.osm.features.forEach(ft => changelog.track(ft));
 
   let feature = changelog.toGeoJSON();
-  if(global.noHistory) {
-    feature = stripHistory(feature);
-  }
-
-  if(global.usePoint) {
+  const originalProps = feature.properties;
+  if(global.mapOptions.usePoint) {
     feature = generalizeAsPoint(feature);
+    feature.properties = originalProps;
+  }
+  if(global.mapOptions.stripHistory) {
+    feature = stripHistory(feature);
   }
   done(null, feature);
 };

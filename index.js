@@ -11,7 +11,7 @@ program
     .option('-o, --out-file <f>', 'GeoJSON target file')
     .option('-m, --mbtiles-file <f>', 'MBTiles source file')
     .option('-s, --stats-file <f>', 'Store gathered statistics')
-    .option('--no-history', 'Only keep total and tile coords as GeoJSON properties')
+    .option('--strip-history', 'Only keep total and tile coords as GeoJSON properties')
     .option('--point', 'Use point not BBOX as GeoJSON geometry')
     .parse(process.argv);
 
@@ -26,7 +26,7 @@ if(program.mbtilesFile && program.outFile) {
       zoom: 12,
       map: path.join(__dirname, '/map.js'),
       mapOptions: {
-          noHistory: program.noHistory,
+          stripHistory: program.stripHistory,
           usePoint: program.point,
       },
       sources: [{
@@ -45,7 +45,7 @@ if(program.mbtilesFile && program.outFile) {
       console.log('Total changed features: %d', changedFeatureCount);
       if(program.statsFile) {
           let report = stats.report();
-          if(program.noHistory) {
+          if(program.stripHistory) {
             delete report.years;
           }
           fs.writeFileSync(program.statsFile, JSON.stringify(report, null, 4));
