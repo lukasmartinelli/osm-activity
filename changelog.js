@@ -4,18 +4,9 @@ const _ = require('lodash');
 const turf = require('turf');
 const tilebelt = require('tilebelt');
 
-function quarters(months) {
-    return [
-        _.sum(months.slice(0, 2)),
-        _.sum(months.slice(3, 5)),
-        _.sum(months.slice(6, 8)),
-        _.sum(months.slice(9, 11)),
-    ];
-}
-
-// Create a new changelog object which contains years and quarters
-// The changelog tracks how many updates a tile has received until
-class TileDecadeChangelog {
+// The changelog tracks how many updates/modifications
+// a tile has received over the years and months
+class Changelog {
     constructor(tile) {
         this.tile = tile;
         this.years = _.fromPairs(_.range(2006, 2017).map(year => {
@@ -28,30 +19,28 @@ class TileDecadeChangelog {
         this.years[date.getFullYear()][date.getMonth()] += 1;
     }
 
+    // Create array that contains the modification count
+    // across all months ranging from 2006 until todaya
+    // The index is the month so
+    // 0 -> January 2006
+    // 13 -> February 2007
+    monthHistory() {
+        let months = [];
+        _.range(2006, 2017).forEach(year => {
+            months.push(...this.years[year])
+        });
+        return months;
+    }
+
     toGeoJSON() {
         let geometry = tilebelt.tileToGeoJSON(this.tile);
         let properties = {
-            years: _(this.years).toPairs().map(kvp => {
-                const year = kvp[0];
-                const months = kvp[1];
-                return [year, {
-                    year: _.sum(months),
-                    quarters: quarters(months),
-                    months: months,
-                }]
-            }).fromPairs(),
-            tile:{
-                x: this.tile[0],
-                y: this.tile[1],
-                z: this.tile[2],
-            },
+            months: this.monthHistory(),
+            tile: this.tile,
         };
-        properties.total = _(properties.years)
-            .values()
-            .map(y => y.year)
-            .sum();
+        properties.total = _.sum(properties.months);
         return turf.feature(geometry, properties);
     }
 }
 
-module.exports = TileDecadeChangelog;
+module.exports = Changelog;

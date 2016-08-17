@@ -1,19 +1,7 @@
 'use strict';
 
-const TileDecadeChangelog = require('./changelog');
+const Changelog = require('./changelog');
 const turf = require('turf');
-
-//Optimize GeoJSON property structure for creating vector tiles
-function stripHistory(ft) {
-    const tile = ft.properties.tile;
-    ft.properties = {
-        total: ft.properties.total,
-        tile_x: tile.x,
-        tile_y: tile.y,
-        tile_z: tile.z,
-    }
-    return ft;
-}
 
 // Turn BBOX into point (for overview)
 function generalizeAsPoint(ft) {
@@ -21,17 +9,15 @@ function generalizeAsPoint(ft) {
 }
 
 module.exports = function(tileLayers, tile, write, done) {
-  const changelog = new TileDecadeChangelog(tile);
+  const changelog = new Changelog(tile);
   tileLayers.osm.osm.features.forEach(ft => changelog.track(ft));
 
-  let feature = changelog.toGeoJSON();
-  const originalProps = feature.properties;
+  const feature = changelog.toGeoJSON();
   if(global.mapOptions.usePoint) {
-    feature = generalizeAsPoint(feature);
-    feature.properties = originalProps;
+    const pointFeature = generalizeAsPoint(feature);
+    pointFeature.properties = feature.properties;
+    done(null, pointFeature);
+  } else {
+    done(null, feature);
   }
-  if(global.mapOptions.stripHistory) {
-    feature = stripHistory(feature);
-  }
-  done(null, feature);
 };

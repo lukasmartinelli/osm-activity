@@ -24,9 +24,10 @@ function statisticsReport(stats) {
 
 class ChangelogStats {
     constructor() {
+        //All values lower than lowThreshold are discarded
+        //like a bandpass filter
         this.lowThreshold = 5;
         this.globalStats = new Stats();
-        this.yearStats = _.fromPairs(_.range(2006, 2017).map(year => [year, new Stats()]));
     }
 
     trackTile(changelog) {
@@ -34,22 +35,11 @@ class ChangelogStats {
         if (props.total > this.lowThreshold) {
             this.globalStats.push(props.total);
         }
-
-        _(props.years).toPairs().forEach(kvp => {
-            var year = kvp[0];
-            var yearInfo = kvp[1];
-            if (yearInfo.year > this.lowThreshold) {
-                this.yearStats[year].push(yearInfo.year);
-            }
-        });
     }
 
     report() {
         return {
             global: statisticsReport(this.globalStats),
-            years: _(this.yearStats).toPairs().map(kvp => {
-                return [kvp[0], statisticsReport(kvp[1])];
-            }).fromPairs()
         };
     }
 }

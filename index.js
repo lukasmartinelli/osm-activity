@@ -8,25 +8,29 @@ const program = require('commander');
 const ChangelogStats = require('./stats');
 
 program
-    .option('-o, --out-file <f>', 'GeoJSON target file')
+    .option('-o, --geojson-file <f>', 'GeoJSON target file')
+    .option('-j, --history-file <f>', 'JSON file to store history')
     .option('-m, --mbtiles-file <f>', 'MBTiles source file')
     .option('-s, --stats-file <f>', 'Store gathered statistics')
-    .option('--strip-history', 'Only keep total and tile coords as GeoJSON properties')
     .option('--point', 'Use point not BBOX as GeoJSON geometry')
     .parse(process.argv);
 
-let changedFeatureCount = 0;
-if(program.mbtilesFile && program.outFile) {
-    const outputStream = fs.createWriteStream(program.outFile);
+if(program.mbtilesFile && program.geojsonFile) {
+    const stats = new ChangelogStats();
+    const outputStream = fs.createWriteStream(program.geojsonFile);
     const featureStream = geoJSONStream.stringify();
     featureStream.pipe(outputStream);
 
-    const stats = new ChangelogStats();
+    let changedFeatureCount = 0;
+
+    //TODO: tile history contains 2.5 mio entries and not really memory friendly
+    //turn this into a stream
+    let tileHistory = {tiles: {}};
+
     tileReduce({
       zoom: 12,
       map: path.join(__dirname, '/map.js'),
       mapOptions: {
-          stripHistory: program.stripHistory,
           usePoint: program.point,
       },
       sources: [{
@@ -35,20 +39,27 @@ if(program.mbtilesFile && program.outFile) {
       }],
       raw: true,
     })
-    .on('reduce', changelog => {
+    .on('reduce', (changelog, tile) => {
       changedFeatureCount += changelog.properties.total;
       stats.trackTile(changelog);
       featureStream.write(changelog);
+
+      //NOTE: Probably as fast as a multidimensional dict since JavaScript turns integer keys
+      //into strings anyway
+      const tileIdx = tile.join('/')
+      tileHistory.tiles[tileIdx] = changelog.properties.months;
     })
     .on('end', () => {
       featureStream.end();
       console.log('Total changed features: %d', changedFeatureCount);
+
+      if(program.historyFile) {
+          tileHistory.stats = stats.report();
+          fs.writeFileSync(program.historyFile, JSON.stringify(tileHistory));
+      }
+
       if(program.statsFile) {
-          let report = stats.report();
-          if(program.stripHistory) {
-            delete report.years;
-          }
-          fs.writeFileSync(program.statsFile, JSON.stringify(report, null, 4));
+          fs.writeFileSync(program.statsFile, JSON.stringify(stats.report(), null, 4));
       }
     });
 } else {
