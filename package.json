@@ -25,6 +25,7 @@
   "homepage": "https://github.com/lukasmartinelli/osm-activity#readme",
   "dependencies": {
     "JSONStream": "^1.1.4",
+    "commander": "^2.9.0",
     "fast-stats": "0.0.3",
     "geojson-stream": "0.0.1",
     "lodash": "^4.15.0",
