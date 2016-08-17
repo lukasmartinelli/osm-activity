@@ -9,6 +9,8 @@ the changes within a tile over the years, quarters and months.
 
 [![Demo of statistics](statdemo.png)](http://osm-activity.lukasmartinelli.ch)
 
+Check out the [node density map](https://tyrasd.github.io/osm-node-density/#7/46.225/7.125/latest,places) by [Martin Raifer](https://github.com/tyrasd) as well.
+
 ## Download
 
 You can download the resulting GeoJSON file from the [latest GitHub release](https://github.com/lukasmartinelli/osm-activity/releases/latest). Please ping me if you require other data formats.
@@ -33,9 +35,6 @@ Invoke the `index.js` file with the planet file and output GeoJSON file.
 ```bash
 node index.js -m planet.mbtiles -o changes.geojson
 ```
-
-Scanning through the 2.5 million tiles on 40 cores takes 20 minutes to do the entire analysis.
-
 
 ## Generate Vector Tiles
 
