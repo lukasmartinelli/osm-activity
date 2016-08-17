@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/lukasmartinelli/osm-tileupdates#readme",
   "dependencies": {
+    "JSONStream": "^1.1.4",
     "fast-stats": "0.0.3",
     "geojson-stream": "0.0.1",
     "lodash": "^4.15.0",

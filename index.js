@@ -6,10 +6,11 @@ const fs = require('fs');
 const geoJSONStream = require('geojson-stream');
 const program = require('commander');
 const ChangelogStats = require('./stats');
+const history = require('./history');
 
 program
     .option('-o, --geojson-file <f>', 'GeoJSON target file')
-    .option('-j, --history-file <f>', 'JSON file to store history')
+    .option('-j, --history-tile-dir <d>', 'Directory to store JSON histories of the tiles')
     .option('-m, --mbtiles-file <f>', 'MBTiles source file')
     .option('-s, --stats-file <f>', 'Store gathered statistics')
     .option('--point', 'Use point not BBOX as GeoJSON geometry')
@@ -22,10 +23,10 @@ if(program.mbtilesFile && program.geojsonFile) {
     featureStream.pipe(outputStream);
 
     let changedFeatureCount = 0;
-
-    //TODO: tile history contains 2.5 mio entries and not really memory friendly
-    //turn this into a stream
-    let tileHistory = {tiles: {}};
+    let tileHistory = new history.NullHistoryStore();
+    if(program.historyTileDir) {
+        tileHistory = new history.HistoryStore(program.historyTileDir, 5);
+    }
 
     tileReduce({
       zoom: 12,
@@ -39,28 +40,20 @@ if(program.mbtilesFile && program.geojsonFile) {
       }],
       raw: true,
     })
-    .on('reduce', (changelog, tile) => {
-      changedFeatureCount += changelog.properties.total;
-      stats.trackTile(changelog);
-      featureStream.write(changelog);
-
-      //NOTE: Probably as fast as a multidimensional dict since JavaScript turns integer keys
-      //into strings anyway
-      const tileIdx = tile.join('/')
-      tileHistory.tiles[tileIdx] = changelog.properties.months;
+    .on('reduce', (feature, tile) => {
+      changedFeatureCount += feature.properties.total;
+      stats.trackTile(feature);
+      featureStream.write(feature);
+      tileHistory.store(feature);
     })
     .on('end', () => {
       featureStream.end();
       console.log('Total changed features: %d', changedFeatureCount);
 
       if(program.historyFile) {
-          tileHistory.stats = stats.report();
           fs.writeFileSync(program.historyFile, JSON.stringify(tileHistory));
       }
-
-      if(program.statsFile) {
-          fs.writeFileSync(program.statsFile, JSON.stringify(stats.report(), null, 4));
-      }
+      tileHistory.end();
     });
 } else {
     program.help();
