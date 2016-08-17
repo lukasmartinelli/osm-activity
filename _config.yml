@@ -1,0 +1,7 @@
+# Site settings
+title: OSM Activity
+email: me@lukasmartinelli.ch
+description: Track global mapping activity in OSM
+baseurl: ""
+url: "http://osm-activity.luaksmartinelli.ch"
+markdown: kramdown
