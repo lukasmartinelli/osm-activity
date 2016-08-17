@@ -1,32 +1,147 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset=utf-8 />
-  <title>OSM Activity</title>
-  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-  <style>
-    body { margin:0; padding:0; }
-    #map { position:absolute; top:0; bottom:0; width:100%; }
-    #github-button { position: absolute; top: 15px; left: 15px; z-index: 1000; }
-  </style>
-  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.21.0/mapbox-gl.js'></script>
-  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.21.0/mapbox-gl.css' rel='stylesheet' />
-</head>
-<body>
-  <iframe id="github-button" src="https://ghbtns.com/github-btn.html?user=lukasmartinelli&repo=osm-activity&type=star&count=true&size=large" frameborder="0" scrolling="0" width="160px" height="30px"></iframe>
-  <div id='map'></div>
-  <script>
-  mapboxgl.accessToken = 'pk.eyJ1IjoibW9yZ2Vua2FmZmVlIiwiYSI6IjIzcmN0NlkifQ.0LRTNgCc-envt9d5MzR75w';
-  var map = new mapboxgl.Map({
-      container: 'map',
-      style: 'mapbox://styles/morgenkaffee/cirypw54h004pgym67fet9chq',
-      center: [8.538961,47.372476],
-      zoom: 1.1,
-      hash: true,
-      minZoom: 1,
-      maxZoom: 11,
-  });
-  map.addControl(new mapboxgl.Navigation());
-  </script>
-</body>
+  <head>
+    <meta charset=utf-8 />
+    <title>OSM Activity</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <style>
+      body { margin:0; padding:0; }
+      #map { position:absolute; top:0; bottom:0; width:100%; }
+      #github-button { position: absolute; top: 15px; left: 15px; z-index: 1000; }
+      .mapboxgl-popup {
+      font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+      }
+    </style>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/Turf.js/3.0.14/turf.min.js'></script>
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.21.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.21.0/mapbox-gl.css' rel='stylesheet' />
+  </head>
+  <body>
+    <iframe id="github-button" src="https://ghbtns.com/github-btn.html?user=lukasmartinelli&repo=osm-activity&type=star&count=true&size=large" frameborder="0" scrolling="0" width="160px" height="30px"></iframe>
+    <div id='map'></div>
+    <script>
+   mapboxgl.accessToken = 'pk.eyJ1IjoibW9yZ2Vua2FmZmVlIiwiYSI6IjIzcmN0NlkifQ.0LRTNgCc-envt9d5MzR75w';
+   var map = new mapboxgl.Map({
+     container: 'map',
+     style: 'mapbox://styles/morgenkaffee/cirypw54h004pgym67fet9chq',
+     center: [8.538961, 47.372476],
+     zoom: 1.1,
+     hash: true,
+     minZoom: 1,
+     maxZoom: 11,
+   });
+   map.addControl(new mapboxgl.Navigation());
+
+   function httpGetAsync(theUrl, callback) {
+     var xmlHttp = new XMLHttpRequest();
+     xmlHttp.onreadystatechange = function() {
+       if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+         callback(xmlHttp.responseText);
+     }
+     xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+     xmlHttp.send(null);
+   }
+
+
+   google.charts.load('current', {
+     packages: ['corechart', 'line']
+   });
+   var bboxLayers = ['tile_updates_1', 'tile_updates_2', 'tile_updates_3', 'tile_updates_4', 'tile_updates_5', 'tile_updates_6', 'tile_updates_7'];
+   map.on('click', function(e) {
+     var features = map.queryRenderedFeatures(e.point, {
+       layers: bboxLayers
+     });
+
+     if (!features.length) {
+       return;
+     }
+
+     var feature = features[0];
+     var props = feature.properties;
+     var tile = [props.tile_x, props.tile_y, props.tile_z];
+     var ancestor = getAncestor(tile);
+     var centroid = turf.centroid(feature);
+
+     httpGetAsync('http://osm-activity.lukasmartinelli.ch/tiles/history/' + ancestor[2] + '/' + ancestor[0] + '/' + ancestor[1] + '.json', function(body) {
+       var tiles = JSON.parse(body);
+       var tileHistory = tiles[tile.join('/')];
+
+       var popup = new mapboxgl.Popup()
+         .setLngLat(centroid.geometry.coordinates)
+         .setHTML('<div id="chart_div"></div>')
+         .addTo(map);
+
+       var data = new google.visualization.DataTable();
+       data.addColumn('date', 'time');
+       data.addColumn('number', 'changes');
+       tileHistory.forEach(function(changes, idx) {
+         // Skip the beginnings
+         if (idx > 24) {
+           var date = new Date(2006 + (idx / 12), (idx) % 12);
+           console.log(date.toDateString());
+           data.addRow([date, changes])
+         }
+       });
+       var options = {
+         legend: 'none',
+         width: 550,
+         height: 300,
+         hAxis: {
+           title: 'Time'
+         },
+         vAxis: {
+           title: 'Changes'
+         },
+         colors: ['#238443'],
+         trendlines: {
+           0: {
+             type: 'linear',
+             color: '#addd8e',
+             opacity: .7
+           }
+         }
+       };
+
+       var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+       chart.draw(data, options);
+     });
+   });
+
+
+   // https://github.com/mapbox/tilebelt/blob/master/index.js
+   function getParent(tile) {
+     // top left
+     if (tile[0] % 2 === 0 && tile[1] % 2 === 0) {
+       return [tile[0] / 2, tile[1] / 2, tile[2] - 1];
+     }
+     // bottom left
+     if ((tile[0] % 2 === 0) && (!tile[1] % 2 === 0)) {
+       return [tile[0] / 2, (tile[1] - 1) / 2, tile[2] - 1];
+     }
+     // top right
+     if ((!tile[0] % 2 === 0) && (tile[1] % 2 === 0)) {
+       return [(tile[0] - 1) / 2, (tile[1]) / 2, tile[2] - 1];
+     }
+     // bottom right
+     return [(tile[0] - 1) / 2, (tile[1] - 1) / 2, tile[2] - 1];
+   }
+
+   function getAncestor(tile) {
+     let parent = getParent(tile);
+     if (parent[2] <= 5) {
+       return parent;
+     } else {
+       return this.getAncestor(parent);
+     }
+   }
+
+   map.on('mousemove', function(e) {
+     var features = map.queryRenderedFeatures(e.point, {
+       layers: bboxLayers
+     });
+     map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
+   });
+    </script>
+  </body>
 </html>
