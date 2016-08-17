@@ -1,6 +1,6 @@
 # osm-tileupdates [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://tldrlegal.com/license/mit-license)
 
-A [Tile Reduce](https://github.com/mapbox/tile-reduce) processor to count
+A map visualization of [OpenStreetMap]() activity and a [Tile Reduce](https://github.com/mapbox/tile-reduce) processor to count
 the changes within a tile over the years, quarters and months.
 
 [**:globe_with_meridians: Check the web map to see OSM update statistics for your region**](http://naturalearthtiles.org)
@@ -34,8 +34,38 @@ Scanning through the 2.5 million tiles on 40 cores takes 20 minutes to do the en
 
 ## Generate Vector Tiles
 
-You can use the huge MBTiles to create vector tiles (used for the heatmap visualization).
+To create the heatmap visualization we create a point layer with the tiles for zoom level 1 to 4
+and a polygon layer with the tiles for zoom level 5 (overzooming will ensure this also works for higher zoom levels).
+
+First create the point GeoJSON file and strip away all attributes to minimize file size.
 
 ```
-tippecanoe world.geojson -o tile_updates.mbtiles -l 'tile_updates' -z 5 -Z 5 -B 5
+node index.js -m planet.mbtiles -o tile_updates_point.geojson --strip-history --point
 ```
+
+Now we create the point MBTiles (and drop points at lower zoom levels).
+
+```
+tippecanoe tile_updates_point.geojson -o tile_updates_point.mbtiles \
+    --minimum-zoom=1 --maximum-zoom=4 --base-zoom=4 --include=total
+```
+
+And now we create the polygon GeoJSON file (containing the tile geometries).
+
+```
+node index.js -m planet.mbtiles -o tile_updates_bbox.geojson --strip-history
+```
+
+And create the polygon MBTiles (do not drop any features and only a single zoom level)
+
+```
+tippecanoe tile_updates_bbox.geojson -o tile_updates_bbox.mbtiles \
+    --minimum-zoom=5 --maximum-zoom=5 --base-zoom=5
+```
+
+We have two vector tile sets now for the low and high zoom levels we can style in Mapbox Studio.
+
+## Use Statistics
+
+The script can track statistics and output them into a file with `-s stats.json`.
+This records different percentile values and makes it useful to style with different data classes.
