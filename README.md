@@ -11,7 +11,7 @@ the changes within a tile over the years, quarters and months.
 
 ## Download
 
-You can download the resulting GeoJSON file from the [latest GitHub release](https://github.com/lukasmartinelli/osm-tileupdates/releases/latest). Please ping me if you require other data formats.
+You can download the resulting GeoJSON file from the [latest GitHub release](https://github.com/lukasmartinelli/osm-activity/releases/latest). Please ping me if you require other data formats.
 
 ## Run yourself
 

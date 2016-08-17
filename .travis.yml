@@ -10,5 +10,5 @@ node_js:
 before_install:
   - wget https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.country/liechtenstein.mbtiles.gz
   - gunzip liechtenstein.mbtiles.gz
-scripts:
+script:
   - node index.js -m liechtenstein.mbtiles -o liechtenstein.geojson -s liechtenstein.stats.json
