@@ -9,8 +9,6 @@ the changes within a tile over the years, quarters and months.
 
 [![Demo of statistics](statdemo.png)](http://osm-activity.lukasmartinelli.ch)
 
-Check out the [node density map](https://tyrasd.github.io/osm-node-density/#7/46.225/7.125/latest,places) by [Martin Raifer](https://github.com/tyrasd) as well.
-
 ## Download
 
 You can download the resulting GeoJSON file from the [latest GitHub release](https://github.com/lukasmartinelli/osm-activity/releases/latest). Please ping me if you require other data formats.
@@ -95,3 +93,9 @@ This records different percentile values and makes it useful to style with diffe
 ```bash
 node index.js -m planet.mbtiles -o changes.geojson -s stats.json
 ```
+
+## Similar Projects
+
+- [Node density map](https://tyrasd.github.io/osm-node-density/#7/46.225/7.125/latest,places) by [Martin Raifer](https://github.com/tyrasd)
+- [OSM Analytics](http://osm-analytics.org/#/) Shows road and building density
+- [OpenStreetMap Contribution Analysis](http://mapbox.github.io/osm-analysis-collab/) Various analysis and web maps based on OSM QA tiles
