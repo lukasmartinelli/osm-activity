@@ -37,8 +37,8 @@ if(program.mbtilesFile && program.geojsonFile) {
       sources: [{
         name: 'osm',
         mbtiles: path.normalize(program.mbtilesFile),
-      }],
-      raw: true,
+        raw: true
+      }]
     })
     .on('reduce', (feature, tile) => {
       changedFeatureCount += feature.properties.total;
