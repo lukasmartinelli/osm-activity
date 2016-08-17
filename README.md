@@ -80,6 +80,12 @@ The directory will be structured into a folder structure `z/x/y.json`.
 node index.js -m planet.mbtiles -o changes.geojson -j tiles
 ```
 
+The tile history is hosted via GitHub pages.
+
+```
+http://osm-activity.lukasmartinelli.ch/tiles/history/{z}/{x}/{y}.json
+```
+
 ## Use Statistics
 
 The script can track statistics and output them into a file with `-s stats.json`.
