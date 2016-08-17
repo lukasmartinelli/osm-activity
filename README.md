@@ -31,3 +31,11 @@ node index.js -m planet.mbtiles -o changes.geojson -s stats.json
 ```
 
 Scanning through the 2.5 million tiles on 40 cores takes 20 minutes to do the entire analysis.
+
+## Generate Vector Tiles
+
+You can use the huge MBTiles to create vector tiles (used for the heatmap visualization).
+
+```
+tippecanoe world.geojson -o tile_updates.mbtiles -l 'tile_updates' -z 5 -Z 5 -B 5
+```
