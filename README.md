@@ -1,9 +1,11 @@
-# osm-tileupdates [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://tldrlegal.com/license/mit-license)
+# osm-activity [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://tldrlegal.com/license/mit-license)
 
 A map visualization of [OpenStreetMap]() activity and a [Tile Reduce](https://github.com/mapbox/tile-reduce) processor to count
 the changes within a tile over the years, quarters and months.
 
-[**:globe_with_meridians: Check the web map to see OSM update statistics for your region**](http://naturalearthtiles.org)
+[**:globe_with_meridians: Check the web map to see OSM activity for your region**](http://naturalearthtiles.org)
+
+[![Demo of interactive web map](mapdemo.gif)](osm-activity.lukasmartinelli.ch)
 
 ## Download
 

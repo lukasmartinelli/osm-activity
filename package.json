@@ -1,7 +1,7 @@
 {
-  "name": "osm-tileupdates",
+  "name": "osm-activity",
   "version": "1.0.0",
-  "description": "Track changes in OSM across tiles",
+  "description": "Track global mapping activity in OSM",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lukasmartinelli/osm-tileupdates.git"
+    "url": "git+https://github.com/lukasmartinelli/osm-activity.git"
   },
   "keywords": [
     "osm",
@@ -20,9 +20,9 @@
   "author": "Lukas Martinelli",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/lukasmartinelli/osm-tileupdates/issues"
+    "url": "https://github.com/lukasmartinelli/osm-activity/issues"
   },
-  "homepage": "https://github.com/lukasmartinelli/osm-tileupdates#readme",
+  "homepage": "https://github.com/lukasmartinelli/osm-activity#readme",
   "dependencies": {
     "JSONStream": "^1.1.4",
     "fast-stats": "0.0.3",
