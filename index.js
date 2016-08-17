@@ -6,13 +6,13 @@ const fs = require('fs');
 const geoJSONStream = require('geojson-stream');
 const program = require('commander');
 const ChangelogStats = require('./stats');
-const toVectorTileCompatibleGeoJSON = require('./vt');
 
 program
     .option('-o, --out-file <f>', 'GeoJSON target file')
     .option('-m, --mbtiles-file <f>', 'MBTiles source file')
     .option('-s, --stats-file <f>', 'Store gathered statistics')
-    .option('--vt-compatible', 'Property names suited for vector tiles')
+    .option('--no-history', 'Only keep total and tile coords as GeoJSON properties')
+    .option('--point', 'Use point not BBOX as GeoJSON geometry')
     .parse(process.argv);
 
 let changedFeatureCount = 0;
@@ -25,6 +25,10 @@ if(program.mbtilesFile && program.outFile) {
     tileReduce({
       zoom: 12,
       map: path.join(__dirname, '/map.js'),
+      mapOptions: {
+          noHistory: program.noHistory,
+          usePoint: program.point,
+      },
       sources: [{
         name: 'osm',
         mbtiles: path.normalize(program.mbtilesFile),
@@ -34,18 +38,17 @@ if(program.mbtilesFile && program.outFile) {
     .on('reduce', changelog => {
       changedFeatureCount += changelog.properties.total;
       stats.trackTile(changelog);
-      if(program.vtCompatible) {
-          featureStream.write(toVectorTileCompatibleGeoJSON(changelog));
-      } else {
-          featureStream.write(changelog);
-      }
+      featureStream.write(changelog);
     })
     .on('end', () => {
       featureStream.end();
       console.log('Total changed features: %d', changedFeatureCount);
       if(program.statsFile) {
-          const report = JSON.stringify(stats.report(), null, 4);
-          fs.writeFileSync(program.statsFile, report);
+          let report = stats.report();
+          if(program.noHistory) {
+            delete report.years;
+          }
+          fs.writeFileSync(program.statsFile, JSON.stringify(report, null, 4));
       }
     });
 } else {
