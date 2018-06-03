@@ -1,5 +1,7 @@
 # osm-activity [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://tldrlegal.com/license/mit-license) [![Build Status](https://travis-ci.org/lukasmartinelli/osm-activity.svg?branch=gh-pages)](https://travis-ci.org/lukasmartinelli/osm-activity)
 
+> :warning: This repository is no longer maintained by Lukas Martinelli.
+
 [A map visualization](http://osm-activity.lukasmartinelli.ch) of [OpenStreetMap]() activity and a [Tile Reduce](https://github.com/mapbox/tile-reduce) processor to count the changes within a tile over the months of the last decade.
 
 [**:globe_with_meridians: Check the WebGL map to see OSM activity for your region**](http://osm-activity.lukasmartinelli.ch)
